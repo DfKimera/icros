@@ -10,7 +10,9 @@ define('MAX_HEIGHT', 1980);
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
 
-if(getenv('APP_DEBUG') !== 'true') {
+$debugMode = getenv('APP_DEBUG') === 'true';
+
+if(!$debugMode) {
 	error_reporting('Off');
 }
 
@@ -22,12 +24,14 @@ function clearQueryString($in) {
 	return str_replace(['/','#','$','!','%','&'], '', $in);
 }
 
-function resolvePathPrefix($incomingPath, $baseDir) {
+function resolvePathPrefix($incomingPath, $baseDir, $rootDir = null) {
+	if(!$rootDir) $rootDir = $baseDir;
+
 	if(substr($incomingPath, 0, strlen($baseDir)) === $baseDir) {
-		return clearRelatives($incomingPath);
+		$incomingPath = substr($incomingPath, strlen($baseDir));
 	}
 
-	return str_finish($baseDir, '/') . clearRelatives($incomingPath);
+	return str_finish($rootDir, '/') . clearRelatives($incomingPath);
 }
 
 function parseOptions($queryString) {
@@ -84,7 +88,7 @@ $fetchDir = str_finish(getenv('FETCH_PATH'), '/');
 
 $fullName = clearRelatives($path . ((strlen($queryString) > 0) ? "@{$queryString}" : ''));
 
-$fetchPath = resolvePathPrefix($path, $storeDir);
+$fetchPath = resolvePathPrefix($path, $storeDir, $fetchDir);
 $storePath = resolvePathPrefix($fullName, $storeDir);
 
 $ext = substr($path, strrpos($path, '.') + 1);
@@ -101,28 +105,28 @@ $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
 if(!in_array(strtolower($ext), $allowedExtensions)) {
 	http_response_code(404);
-	die("403 Extension not allowed");
+	die("403 Extension not allowed " . ($debugMode ? "[{$ext}]" : ''));
 }
 	
 $options = parseOptions($queryString);
 
 if(!file_exists($fetchPath)) {
 	http_response_code(404);
-	die("404 Not Found");
+	die("404 Not Found " . ($debugMode ? " - {$fetchPath}" : ''));
 }
 
 $img = Image::make($fetchPath);
 
 if($options['mode'] !== 'ORIGINAL') {
-	if($options['width'] > MAX_WIDTH) exit();
-	if($options['height'] > MAX_HEIGHT) exit();
-	if($options['x'] > MAX_WIDTH) exit();
-	if($options['y'] > MAX_HEIGHT) exit();
+	if($options['width'] > MAX_WIDTH) die('Width over limit');
+	if($options['height'] > MAX_HEIGHT) die('Height over limit');
+	if($options['x'] > MAX_WIDTH) die('X over limit');
+	if($options['y'] > MAX_HEIGHT) die('Y over limit');
 
-	if($options['width'] <= 0) exit();
-	if($options['height'] <= 0) exit();
-	if($options['x'] <= 0) exit();
-	if($options['y'] <= 0) exit();
+	if($options['width'] <= 0) die('Width under 0');
+	if($options['height'] <= 0) die('Height under 0');
+	if($options['x'] < 0) die('X under zero');
+	if($options['y'] < 0) die('Y under zero');
 }
 
 switch($options['mode']) {
