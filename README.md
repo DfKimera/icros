@@ -21,7 +21,16 @@
      FETCH_PATH | Where to fetch master files from; this can be any absolute path
      STORE_PATH | Where to store processed images; this should be relative to the application root (`index.php`). If you require this path to be elsewhere, make sure to update `nginx_site.conf` accordingly.
 
-- Add the `nginx_site.conf` file to your `/etc/nginx/sites_enabled` folder, making sure to setup `server_name` and `root` variables accordingly
+- Add the `nginx_site.conf` file to your `/etc/nginx/sites_enabled` folder, making sure to setup `server_name` and `root` variables accordingly.
+  
+  If you already have an existing `.conf` file and would like to preserve it, all you have to do is swap your `location /` section to the following:
+  
+  ```
+  location / {
+    try_files $uri@$query_string /index.php?$query_string;
+  }
+  ```
+  
 - Restart your Nginx
 - Presto!
 
