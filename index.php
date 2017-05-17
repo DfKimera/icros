@@ -7,8 +7,9 @@ require_once('vendor/autoload.php');
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
 
-$app = new Application();
-$app['debug'] = getenv('APP_DEBUG') === 'true';
+if(getenv('APP_DEBUG') !== 'true') {
+	error_reporting('Off');
+}
 
 function clearRelatives($in) {
 	return str_replace('../', '', $in);
