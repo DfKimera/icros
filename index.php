@@ -81,7 +81,7 @@ $storePath = resolvePathPrefix($fullName, $storeDir);
 
 $ext = substr($path, strrpos($path, '.') + 1);
 
-if(!file_exists($storePath)) {
+if(strlen($queryString) <= 0) {
 
 	http_response_code(301);
 	header("Location: /{$path}?mORIGINAL.{$ext}");
