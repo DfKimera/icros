@@ -76,7 +76,7 @@ $fetchDir = str_finish(getenv('FETCH_PATH'), '/');
 
 $fullName = clearRelatives($path . ((strlen($queryString) > 0) ? "@{$queryString}" : ''));
 
-$fetchPath = resolvePathPrefix($path, $fetchDir);
+$fetchPath = resolvePathPrefix($path, $storeDir);
 $storePath = resolvePathPrefix($fullName, $storeDir);
 
 $ext = substr($path, strrpos($path, '.') + 1);
