@@ -14,6 +14,10 @@ function clearRelatives($in) {
 	return str_replace('../', '', $in);
 }
 
+function clearQueryString($in) {
+	return str_replace(['/','#','$','!','%','&'], '', $in);
+}
+
 function resolvePathPrefix($incomingPath, $baseDir) {
 	if(substr($incomingPath, 0, strlen($baseDir)) === $baseDir) {
 		return clearRelatives($incomingPath);
@@ -69,7 +73,7 @@ if(strlen($path) <= 0 || $path === '/') {
 	die("Icros 1.0");
 }
 
-$queryString = $_SERVER['QUERY_STRING'];
+$queryString = clearQueryString($_SERVER['QUERY_STRING']);
 
 $storeDir = str_finish(getenv('STORE_PATH'), '/');
 $fetchDir = str_finish(getenv('FETCH_PATH'), '/');
