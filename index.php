@@ -4,6 +4,9 @@ use Intervention\Image\ImageManagerStatic as Image;
 
 require_once('vendor/autoload.php');
 
+define('MAX_WIDTH', 1980);
+define('MAX_HEIGHT', 1980);
+
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
 
@@ -109,8 +112,18 @@ if(!file_exists($fetchPath)) {
 }
 
 $img = Image::make($fetchPath);
-$imgW = $img->width();
-$imgH = $img->height();
+
+if($options['mode'] !== 'ORIGINAL') {
+	if($options['width'] > MAX_WIDTH) exit();
+	if($options['height'] > MAX_HEIGHT) exit();
+	if($options['x'] > MAX_WIDTH) exit();
+	if($options['y'] > MAX_HEIGHT) exit();
+
+	if($options['width'] <= 0) exit();
+	if($options['height'] <= 0) exit();
+	if($options['x'] <= 0) exit();
+	if($options['y'] <= 0) exit();
+}
 
 switch($options['mode']) {
 	case "CROP":
