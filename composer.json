@@ -1,0 +1,17 @@
+{
+    "name": "dfkimera/icros",
+    "description": "Hosted image resizing platform",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aryel Tupinamba",
+            "email": "aryel.tupinamba@lqdi.net"
+        }
+    ],
+    "require": {
+        "illuminate/support": "^5.4",
+        "intervention/image": "^2.3",
+        "vlucas/phpdotenv": "^2.4",
+        "silex/silex": "^2.1"
+    }
+}
