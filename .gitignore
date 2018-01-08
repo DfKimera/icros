@@ -9,6 +9,8 @@ Icon
 
 .env
 
+.idea*
+
 storage/cache/*
 storage/source/*
 storage/*

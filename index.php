@@ -144,6 +144,16 @@ switch($options['mode']) {
 
 		break;
 
+	case "CONTAIN":
+
+		$img
+			->resize($options['width'], $options['height'], function ($constraint) {
+				$constraint->aspectRatio();
+			})
+			->resizeCanvas($options['width'], $options['height']);
+
+		break;
+
 	case "RESIZE":
 
 		$img->resize($options['width'], $options['height']);
