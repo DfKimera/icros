@@ -149,6 +149,7 @@ switch($options['mode']) {
 		$img
 			->resize($options['width'], $options['height'], function ($constraint) {
 				$constraint->aspectRatio();
+				$constraint->upsize();
 			})
 			->resizeCanvas($options['width'], $options['height']);
 
