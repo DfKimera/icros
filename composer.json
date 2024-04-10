@@ -9,9 +9,14 @@
         }
     ],
     "require": {
+        "php": "^7.4 | ^8.0 | ^8.1 | ^8.2",
         "illuminate/support": "^5.4",
         "intervention/image": "^2.3",
-        "vlucas/phpdotenv": "^2.4",
-        "silex/silex": "^2.1"
+        "vlucas/phpdotenv": "^2.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "kylekatarnls/update-helper": false
+        }
     }
 }
