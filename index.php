@@ -1,11 +1,10 @@
 <?php
-use Silex\Application;
 use Intervention\Image\ImageManagerStatic as Image;
 
 require_once('vendor/autoload.php');
 
-define('MAX_WIDTH', 1980);
-define('MAX_HEIGHT', 1980);
+const MAX_WIDTH = 1980;
+const MAX_HEIGHT = 1980;
 
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
@@ -155,6 +154,16 @@ switch($options['mode']) {
 
 		break;
 
+	case "SCALE":
+
+		$img
+			->resize($options['width'], $options['height'], function ($constraint) {
+				$constraint->aspectRatio();
+				$constraint->upsize();
+			});
+
+		break;
+
 	case "RESIZE":
 
 		$img->resize($options['width'], $options['height']);
@@ -165,4 +174,4 @@ switch($options['mode']) {
 
 $img->save($storePath);
 
-die($img->response($options['extension'], $options['quality']));
+echo $img->response($options['extension'], $options['quality']);
