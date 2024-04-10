@@ -80,6 +80,18 @@ if(!file_exists($fetchPath)) {
 	die("404 Not Found " . ($debugMode ? " - {$fetchPath}" : ''));
 }
 
+if (file_exists($storePath)) {
+    ob_end_clean();
+    ob_implicit_flush(true);
+
+    header('X-Icros-Origin: cache-generated');
+
+    $cachedFile = fopen($storePath, 'r');
+    fpassthru($cachedFile);
+
+    exit();
+}
+
 $img = Image::make($fetchPath);
 
 if($options['mode'] !== 'ORIGINAL') {
@@ -148,7 +160,7 @@ $img->save($storePath);
 ob_end_clean();
 ob_implicit_flush(true);
 
-header('X-Icros-Origin: generated');
+header('X-Icros-Origin: fresh-generated');
 
 echo $img->response($options['extension'], $options['quality']);
 
