@@ -1,5 +1,6 @@
 <?php
 require_once('vendor/autoload.php');
+require_once('functions.php');
 
 use Intervention\Image\ImageManagerStatic as Image;
 
@@ -9,71 +10,13 @@ const MAX_HEIGHT = 1980;
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
 
+$debugMode = getenv('APP_DEBUG') === 'true';
+
 $bugsnag = Bugsnag\Client::make(getenv('BUGSNAG_API_KEY'));
 Bugsnag\Handler::register($bugsnag);
 
-$debugMode = getenv('APP_DEBUG') === 'true';
-
 if(!$debugMode) {
 	error_reporting('Off');
-}
-
-function clearRelatives($in) {
-	return str_replace('../', '', $in);
-}
-
-function clearQueryString($in) {
-	return str_replace(['/','#','$','!','%','&'], '', $in);
-}
-
-function resolvePathPrefix($incomingPath, $baseDir, $rootDir = null) {
-	if(!$rootDir) $rootDir = $baseDir;
-
-	if(substr($incomingPath, 0, strlen($baseDir)) === $baseDir) {
-		$incomingPath = substr($incomingPath, strlen($baseDir));
-	}
-
-	return str_finish($rootDir, '/') . clearRelatives($incomingPath);
-}
-
-function parseOptions($queryString) {
-	$opts = explode(',', $queryString);
-	$options = [
-		'mode' => 'ORIGINAL',
-		'width' => 100,
-		'height' => 100,
-		'x' => 0,
-		'y' => 0,
-		'extension' => 'jpg',
-		'quality' => 90,
-	];
-
-	if(sizeof($opts) <= 0) return $options;
-
-	foreach($opts as $opt) {
-
-		if(strlen(trim($opt)) <= 0) continue;
-
-		$dotPos = strpos($opt, '.');
-
-		if($dotPos !== false) { // strip extension from the last option
-			$options['extension'] = substr($opt, $dotPos + 1);
-			$opt = substr($opt, 0, $dotPos);
-		}
-
-		if(strlen(trim($opt)) <= 0) continue;
-
-		switch(strtolower($opt[0])) {
-			case 'w': $options['width'] = intval(substr($opt, 1)); break;
-			case 'h': $options['height'] = intval(substr($opt, 1)); break;
-			case 'x': $options['x'] = intval(substr($opt, 1)); break;
-			case 'y': $options['y'] = intval(substr($opt, 1)); break;
-			case 'm': $options['mode'] = strtoupper(substr($opt, 1)); break;
-			case 'q': $options['quality'] = intval(substr($opt, 1)); break;
-		}
-	}
-
-	return $options;
 }
 
 $queryPos = strpos($_SERVER['REQUEST_URI'], '?');
@@ -84,6 +27,8 @@ if(strlen($path) <= 0 || $path === '/') {
 }
 
 $queryString = clearQueryString($_SERVER['QUERY_STRING']);
+
+debug("Handling GET: {$path} (QS: {$queryString})", $debugMode);
 
 $storeDir = str_finish(getenv('STORE_PATH'), '/');
 $fetchDir = str_finish(getenv('FETCH_PATH'), '/');
@@ -97,6 +42,8 @@ $ext = substr($path, strrpos($path, '.') + 1);
 
 if(strlen($queryString) <= 0) {
 
+    debug("\t No query string detected, redirecting to original file...", $debugMode);
+
 	http_response_code(301);
 	header("Location: /{$path}?mORIGINAL.{$ext}");
 
@@ -106,6 +53,8 @@ if(strlen($queryString) <= 0) {
 $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
 if(!in_array(strtolower($ext), $allowedExtensions)) {
+    debug("\t Extension not allowed: $ext", $debugMode);
+
 	http_response_code(404);
 	die("403 Extension not allowed " . ($debugMode ? "[{$ext}]" : ''));
 }
@@ -113,6 +62,8 @@ if(!in_array(strtolower($ext), $allowedExtensions)) {
 $options = parseOptions($queryString);
 
 if(!file_exists($fetchPath)) {
+    debug("\t File not found in fetch path: {$fetchPath}", $debugMode);
+
 	http_response_code(404);
 	die("404 Not Found " . ($debugMode ? " - {$fetchPath}" : ''));
 }
@@ -130,6 +81,8 @@ if($options['mode'] !== 'ORIGINAL') {
 	if($options['x'] < 0) die('X under zero');
 	if($options['y'] < 0) die('Y under zero');
 }
+
+debug("\t OPTS: " . json_encode($options), $debugMode);
 
 switch($options['mode']) {
 	case "CROP":
@@ -174,6 +127,8 @@ switch($options['mode']) {
 		break;
 
 }
+
+debug("\t STORE: {$storePath}", $debugMode);
 
 $img->save($storePath);
 
