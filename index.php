@@ -6,8 +6,8 @@ require_once('functions.php');
 
 use Intervention\Image\ImageManagerStatic as Image;
 
-const MAX_WIDTH = 1980;
-const MAX_HEIGHT = 1980;
+const MAX_WIDTH = 3000;
+const MAX_HEIGHT = 3000;
 
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
