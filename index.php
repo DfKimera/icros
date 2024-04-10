@@ -12,8 +12,10 @@ $dotenv->load();
 
 $debugMode = getenv('APP_DEBUG') === 'true';
 
-$bugsnag = Bugsnag\Client::make(getenv('BUGSNAG_API_KEY'));
-Bugsnag\Handler::register($bugsnag);
+try {
+    $bugsnag = Bugsnag\Client::make(getenv('BUGSNAG_API_KEY'));
+    Bugsnag\Handler::register($bugsnag);
+} catch (Exception $e) {}
 
 if(!$debugMode) {
 	error_reporting('Off');
