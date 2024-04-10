@@ -45,7 +45,7 @@ debug("Handling GET: {$path} (QS: {$queryString})", $debugMode);
 $storeDir = str_finish(getenv('STORE_PATH'), '/');
 $fetchDir = str_finish(getenv('FETCH_PATH'), '/');
 
-$fullName = clearRelatives($path . ((strlen($queryString) > 0) ? "@{$queryString}" : ''));
+$fullName = clearRelatives($path . ((strlen($queryString) > 0) ? "!{$queryString}" : ''));
 
 $fetchPath = resolvePathPrefix($path, $storeDir, $fetchDir);
 $storePath = resolvePathPrefix($fullName, $storeDir);
@@ -147,6 +147,8 @@ $img->save($storePath);
 
 ob_end_clean();
 ob_implicit_flush(true);
+
+header('X-Icros-Origin: generated');
 
 echo $img->response($options['extension'], $options['quality']);
 
