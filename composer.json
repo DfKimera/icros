@@ -12,7 +12,8 @@
         "php": "^7.4 | ^8.0 | ^8.1 | ^8.2",
         "illuminate/support": "^5.4",
         "intervention/image": "^2.3",
-        "vlucas/phpdotenv": "^2.4"
+        "vlucas/phpdotenv": "^2.4",
+        "bugsnag/bugsnag": "^3.0"
     },
     "config": {
         "allow-plugins": {

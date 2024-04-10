@@ -1,13 +1,16 @@
 <?php
-use Intervention\Image\ImageManagerStatic as Image;
-
 require_once('vendor/autoload.php');
+
+use Intervention\Image\ImageManagerStatic as Image;
 
 const MAX_WIDTH = 1980;
 const MAX_HEIGHT = 1980;
 
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
+
+$bugsnag = Bugsnag\Client::make(getenv('BUGSNAG_API_KEY'));
+Bugsnag\Handler::register($bugsnag);
 
 $debugMode = getenv('APP_DEBUG') === 'true';
 
