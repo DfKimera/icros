@@ -2,7 +2,7 @@
 require_once('vendor/autoload.php');
 
 function clearRelatives(string $in) : string {
-    return str_replace('../', '', $in);
+    return str_replace(['unix:', '://', '../'], '', $in);
 }
 
 function clearQueryString(string $in) : string {
@@ -10,7 +10,11 @@ function clearQueryString(string $in) : string {
 }
 
 function resolvePathPrefix(string $incomingPath, string $baseDir, ?string $rootDir = null) : string {
-    if(!$rootDir) $rootDir = $baseDir;
+    if(!$rootDir) {
+        $rootDir = $baseDir;
+    }
+
+    $incomingPath = clearRelatives($incomingPath);
 
     if(substr($incomingPath, 0, strlen($baseDir)) === $baseDir) {
         $incomingPath = substr($incomingPath, strlen($baseDir));
