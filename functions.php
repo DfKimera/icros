@@ -65,7 +65,9 @@ function parseOptions($queryString) : array {
 }
 
 function debug(string $message, bool $debugMode) : void {
-    if (!$debugMode) return;
+    if (!$debugMode) {
+        return;
+    }
 
     error_log("\n<" .  date('Y-m-d H:i:s') . '> ' . $message, 3, str_finish(__DIR__, '/') . 'debug.log');
 }

@@ -1,4 +1,6 @@
 <?php
+ob_start(); // Output buffering ensures any errors or warnings get discarded when rendering the image
+
 require_once('vendor/autoload.php');
 require_once('functions.php');
 
@@ -12,27 +14,25 @@ $dotenv->load();
 
 $debugMode = getenv('APP_DEBUG') === 'true';
 
-try {
-    $bugsnag = Bugsnag\Client::make(getenv('BUGSNAG_API_KEY'));
-    Bugsnag\Handler::register($bugsnag);
-} catch (Exception $e) {}
+// Sets up error display & logging accordingly
+ini_set('display_errors', $debugMode ? 'On' : 'Off');
+error_reporting($debugMode ? (E_ALL | E_STRICT) : 0);
 
-if($debugMode) {
-    ini_set('display_errors', 'On');
-	error_reporting(E_ALL | E_STRICT);
-} else {
-    ini_set('display_errors', 'Off');
-	error_reporting('Off');
-}
+$querySymbolPosition = strpos($_SERVER['REQUEST_URI'], '?');
 
-$queryPos = strpos($_SERVER['REQUEST_URI'], '?');
-$path = substr($_SERVER['REQUEST_URI'], 1, ($queryPos !== false) ? ($queryPos - 1) : strlen($_SERVER['REQUEST_URI']));
+$path = substr(
+    $_SERVER['REQUEST_URI'],
+    1,
+    ($querySymbolPosition !== false)
+        ? ($querySymbolPosition - 1)
+        : strlen($_SERVER['REQUEST_URI'])
+);
 
 if(strlen($path) <= 0 || $path === '/') {
 	echo "Icros 1.1";
 
     if ($debugMode) {
-        echo "<br>DEBUG MODE<br><pre>" . json_encode(getenv(), JSON_PRETTY_PRINT) . "</pre>";
+        echo " - DEBUG MODE";
     }
 
     exit();
@@ -142,6 +142,14 @@ switch($options['mode']) {
 
 debug("\t STORE: {$storePath}", $debugMode);
 
+// Persist the cached image on disk
 $img->save($storePath);
 
+ob_end_clean();
+ob_implicit_flush(true);
+
 echo $img->response($options['extension'], $options['quality']);
+
+ob_end_flush();
+
+exit();
