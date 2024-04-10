@@ -17,7 +17,11 @@ try {
     Bugsnag\Handler::register($bugsnag);
 } catch (Exception $e) {}
 
-if(!$debugMode) {
+if($debugMode) {
+    ini_set('display_errors', 'On');
+	error_reporting(E_ALL | E_STRICT);
+} else {
+    ini_set('display_errors', 'Off');
 	error_reporting('Off');
 }
 
