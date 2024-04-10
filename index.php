@@ -25,7 +25,13 @@ $queryPos = strpos($_SERVER['REQUEST_URI'], '?');
 $path = substr($_SERVER['REQUEST_URI'], 1, ($queryPos !== false) ? ($queryPos - 1) : strlen($_SERVER['REQUEST_URI']));
 
 if(strlen($path) <= 0 || $path === '/') {
-	die("Icros 1.0");
+	echo "Icros 1.1";
+
+    if ($debugMode) {
+        echo "<br>DEBUG MODE<br><pre>" . json_encode(getenv(), JSON_PRETTY_PRINT) . "</pre>";
+    }
+
+    exit();
 }
 
 $queryString = clearQueryString($_SERVER['QUERY_STRING']);
