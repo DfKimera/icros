@@ -86,6 +86,8 @@ if (file_exists($storePath)) {
 
     header('X-Icros-Origin: cache-generated');
 
+    header('Content-Type: ' . getMimeTypeFromExtension($ext));
+
     $cachedFile = fopen($storePath, 'r');
     fpassthru($cachedFile);
 

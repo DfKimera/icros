@@ -75,3 +75,19 @@ function debug(string $message, bool $debugMode) : void {
 
     error_log("\n<" .  date('Y-m-d H:i:s') . '> ' . $message, 3, str_finish(__DIR__, '/') . 'debug.log');
 }
+
+function getMimeTypeFromExtension(string $extension) : string {
+    switch (strtolower(trim($extension))) {
+        case 'jpg';
+        case 'jpeg':
+            return 'image/jpeg';
+        case 'png':
+            return 'image/png';
+        case 'gif':
+            return 'image/gif';
+        case 'webp':
+            return 'image/webp';
+        default:
+            return 'text/plain';
+    }
+}
