@@ -20,7 +20,7 @@ error_reporting($debugMode ? (E_ALL | E_STRICT) : 0);
 
 $querySymbolPosition = strpos($_SERVER['REQUEST_URI'], '?');
 
-$path = substr(
+$path = $_GET['p'] ?? substr(
     $_SERVER['REQUEST_URI'],
     1,
     ($querySymbolPosition !== false)
@@ -38,7 +38,12 @@ if(strlen($path) <= 0 || $path === '/') {
     exit();
 }
 
-$queryString = clearQueryString($_SERVER['QUERY_STRING']);
+$queryString = clearQueryString($_GET['q'] ?? $_SERVER['QUERY_STRING']);
+
+$sourceExt = substr($path, strrpos($path, '.') + 1);
+$targetExt = strrpos($queryString, '.') !== false
+    ? substr($queryString, strrpos($queryString, '.') + 1)
+    : $sourceExt;
 
 debug("Handling GET: {$path} (QS: {$queryString})", $debugMode);
 
@@ -50,25 +55,24 @@ $fullName = clearRelatives($path . ((strlen($queryString) > 0) ? "!{$queryString
 $fetchPath = resolvePathPrefix($path, $storeDir, $fetchDir);
 $storePath = resolvePathPrefix($fullName, $storeDir);
 
-$ext = substr($path, strrpos($path, '.') + 1);
 
 if(strlen($queryString) <= 0) {
 
     debug("\t No query string detected, redirecting to original file...", $debugMode);
 
 	http_response_code(301);
-	header("Location: /{$path}?mORIGINAL.{$ext}");
+	header("Location: /{$path}?mORIGINAL.{$sourceExt}");
 
 	exit();
 }
 
 $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
-if(!in_array(strtolower($ext), $allowedExtensions)) {
-    debug("\t Extension not allowed: $ext", $debugMode);
+if(!in_array(strtolower($sourceExt), $allowedExtensions) || !in_array(strtolower($targetExt), $allowedExtensions)) {
+    debug("\t Extension not allowed: $sourceExt", $debugMode);
 
 	http_response_code(404);
-	die("403 Extension not allowed " . ($debugMode ? "[{$ext}]" : ''));
+	die("403 Extension not allowed " . ($debugMode ? "[{$sourceExt}]" : ''));
 }
 	
 $options = parseOptions($queryString);
@@ -86,7 +90,7 @@ if (file_exists($storePath)) {
 
     header('X-Icros-Origin: cache-generated');
 
-    header('Content-Type: ' . getMimeTypeFromExtension($ext));
+    header('Content-Type: ' . getMimeTypeFromExtension($targetExt));
 
     $cachedFile = fopen($storePath, 'r');
     fpassthru($cachedFile);
@@ -94,7 +98,14 @@ if (file_exists($storePath)) {
     exit();
 }
 
-$img = Image::make($fetchPath);
+if ($sourceExt === 'png' && ($targetExt === 'jpg' || $targetExt === 'jpeg')) {
+    $sourceImg = Image::make($fetchPath);
+
+    $img = Image::canvas($sourceImg->width(), $sourceImg->height(), '#ffffff');
+    $img->insert($sourceImg);
+} else {
+    $img = Image::make($fetchPath);
+}
 
 if($options['mode'] !== 'ORIGINAL') {
 	if($options['width'] > MAX_WIDTH) die('Width over limit');
@@ -157,11 +168,12 @@ switch($options['mode']) {
 debug("\t STORE: {$storePath}", $debugMode);
 
 // Persist the cached image on disk
-$img->save($storePath);
+//$img->save($storePath);
 
 ob_end_clean();
 ob_implicit_flush(true);
 
+header('Content-Type: ' . getMimeTypeFromExtension($targetExt));
 header('X-Icros-Origin: fresh-generated');
 
 echo $img->response($options['extension'], $options['quality']);
