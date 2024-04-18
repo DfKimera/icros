@@ -168,7 +168,7 @@ switch($options['mode']) {
 debug("\t STORE: {$storePath}", $debugMode);
 
 // Persist the cached image on disk
-//$img->save($storePath);
+$img->save($storePath);
 
 ob_end_clean();
 ob_implicit_flush(true);
