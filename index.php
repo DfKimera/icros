@@ -38,6 +38,11 @@ if(strlen($path) <= 0 || $path === '/') {
     exit();
 }
 
+// Strips leading slash
+if (str_starts_with($path, '/')) {
+    $path = substr($path, 1);
+}
+
 $queryString = clearQueryString($_GET['q'] ?? $_SERVER['QUERY_STRING']);
 
 $sourceExt = substr($path, strrpos($path, '.') + 1);
@@ -74,7 +79,7 @@ if(!in_array(strtolower($sourceExt), $allowedExtensions) || !in_array(strtolower
 	http_response_code(404);
 	die("403 Extension not allowed " . ($debugMode ? "[{$sourceExt}]" : ''));
 }
-	
+
 $options = parseOptions($queryString);
 
 if(!file_exists($fetchPath)) {
