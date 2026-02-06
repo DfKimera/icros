@@ -46,6 +46,8 @@ To add processing parameters to your image, you add a series of options as query
 	
 The URL above will crop the image by 300x400, and store/respond it as JPG. If you omit the extension, the image will be served as JPEG.
 
+Supported image formats: JPEG, PNG, GIF, and WebP.
+
 The following options are available:
 
 Prefix | Option | Description

@@ -71,7 +71,7 @@ if(strlen($queryString) <= 0) {
 	exit();
 }
 
-$allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+$allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
 if(!in_array(strtolower($sourceExt), $allowedExtensions) || !in_array(strtolower($targetExt), $allowedExtensions)) {
     debug("\t Extension not allowed: $sourceExt", $debugMode);
